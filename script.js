@@ -1,5 +1,5 @@
 const cardsPerRow = 4
-const cardCount = 12
+const cardCount = 24
 
 const dragging = {
   card: null,
@@ -70,10 +70,11 @@ function tryStartDrag(event) {
   if (!card) return
 
   const { offsetX, offsetY } = event
-  const { left: startX, top: startY } = card.getBoundingClientRect()
+  const { left: startX, top } = card.getBoundingClientRect()
+  const { scrollTop } = document.documentElement
 
   document.body.append(card)
-  Object.assign(dragging, { card, offsetX, offsetY, startX, startY })
+  Object.assign(dragging, { card, offsetX, offsetY, startX, startY: top + scrollTop })
   card.style.transition = null
 }
 
@@ -82,12 +83,11 @@ function tryDrag(event) {
 
   if (!card) return
 
-  const { clientX, clientY } = event
-  const { scrollTop } = document.documentElement
+  const { pageX, pageY } = event
 
   Object.assign(card.style, {
-    left: `${clientX - offsetX}px`,
-    top: `${clientY - offsetY + scrollTop}px`,
+    left: `${pageX - offsetX}px`,
+    top: `${pageY - offsetY}px`,
   })
 }
 
@@ -97,7 +97,6 @@ function tryEndDrag(event) {
   if (!card) return
 
   const { clientX, clientY } = event
-  const { scrollTop } = document.documentElement
 
   card.remove()
 
@@ -111,11 +110,12 @@ function tryEndDrag(event) {
     return
   }
 
-  const { left: endX, top: endY } = cardUnderMouse.getBoundingClientRect()
+  const { left: endX, top } = cardUnderMouse.getBoundingClientRect()
+  const { scrollTop } = document.documentElement
 
   Object.assign(cardUnderMouse.style, {
     left: startX + 'px',
-    top: startY + scrollTop + 'px',
+    top: startY + 'px',
   })
 
   document.body.append(card)
@@ -126,7 +126,7 @@ function tryEndDrag(event) {
 
     Object.assign(card.style, {
       left: endX + 'px',
-      top: endY + scrollTop + 'px',
+      top: top + scrollTop + 'px',
     })
   }, 0)
 }
